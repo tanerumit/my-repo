@@ -1,0 +1,45 @@
+---
+title: "Use doParallel for a function"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+	echo = TRUE,
+	message = FALSE,
+	warning = FALSE
+)
+```
+
+A simple template for making a function parallel using doParallel package
+[link](https://stackoverflow.com/questions/42374125/what-is-the-best-practice-for-making-functions-in-my-r-package-parallelizable)
+
+```{r}
+
+library(doParallel)
+
+parfun <- function(n=10, parallel=FALSE, cores=getOption('mc.cores', 2L)) {
+  if (parallel) {
+    # honor registration made by user, and only create and register
+    # our own cluster object once
+    if (! getDoParRegistered()) {
+      cl <- makePSOCKcluster(cores)
+      registerDoParallel(cl)
+      message('Registered doParallel with ', cores, ' workers')
+    } else {
+      message('Using ', getDoParName(), ' with ', getDoParWorkers(), ' workers')
+    }
+    `%d%` <- `%dopar%`
+  } else {
+    message('Executing parfun sequentially')
+    `%d%` <- `%do%`
+  }
+  foreach(i=seq_len(n), .combine='c') %d% {
+    Sys.sleep(1)
+    i
+  }
+}
+```
+
+

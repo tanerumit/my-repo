@@ -1,0 +1,38 @@
+---
+title: "Alluvial Plots"
+output:
+  html_document: default
+  html_notebook: default
+---
+
+Alluvial plots work similarly to parallel coordinates plots, but instead of having ranges of values in the axes, it contains bins whose sizes in an axis depends on how many data points belong to that bin. Data points that fall within the same categories in all axes are grouped into alluvia (stripes), whose thicknesses reflect the number of data points in each alluvium.
+
+Load alluvial package & dataset
+```{r, echo = TRUE, message= FALSE}
+library(magrittr) 
+library(dplyr) 
+library(alluvial)
+tit <- tibble::as_data_frame(Titanic)
+tit %>% head() %>% knitr::kable()
+```
+
+Generate Alluvial plot
+```{r, echo = TRUE}
+alluvial(
+  # Data frame to be plotted
+  select(tit, Survived, Sex, Age, Class),
+  # numeric, vector of frequencies of the same length as the number of observations
+  freq =tit$n,
+  # vector of colors of the stripes
+  col = ifelse(tit$Survived == "Yes", "orange", "grey"),
+  #vector of border colors for the stripes
+  border = ifelse(tit$Survived == "Yes", "orange", "grey"),
+  #vector of border colors for the stripes
+  layer = tit$Survived != "Yes",
+  #numeric, vector of transparency of the stripes
+  alpha = 0.8,
+  #logical, whether to use blocks to tie the flows together at each category
+  blocks = TRUE
+)
+```
+

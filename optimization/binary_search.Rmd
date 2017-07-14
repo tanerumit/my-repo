@@ -1,0 +1,82 @@
+
+---
+title  : "Binary Search in R"
+author : "M. Umit Taner"
+date   : "September 20, 2015"
+output: 
+  ioslides_presentation: 
+    highlight: zenburn
+    incremental: yes
+    logo: Umass_logo.png
+    theme: readable
+    transition: faster
+---
+
+## Binary Search Algorithm
+
+- **_Binary search_** is an efficient algorithm for finding an item from an ordered 
+  list of items. It works by repeatedly dividing in half the portion of the 
+  list that could contain the item, until you've narrowed down the possible 
+  locations to just one.
+
+![Binary search over integers ](http://interactivepython.org/courselib/static/pythonds/_images/binsearch.png)
+
+## Binary Search Algorithm
+
+* Assume that:
+    + X is a continuous variable
+    + Y is a function of X, i.e., Y = F(x)
+    + a, b are the lower and upper bounds of X
+
+
+![Wikipedia/Binary_search ](https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Bisection_method.svg/250px-Bisection_method.svg.png)
+
+## Binary Search in R (1)
+
+>- Define Y = F(X)
+>- Define the target value for Y
+>- Define the lower & upper bounds for X
+>- Define max.iteration number
+>- Repeat search until the target Y is obtained
+
+## Binary Search in R(2)
+
+```{r, eval = FALSE, tidy = TRUE}
+
+    #Define F(X)
+    Y_calculate <- function(X) {}  
+
+    #Target Y value
+    target_Y <- "input_target_value_here"
+
+    #Boundary conditions
+    min_X <- "lower_bound_for_the_search"
+    max_X <- "upper_bound_for_the_search"
+    
+    #Max.number of iteraton
+    max.iterations <- "input_max_iterations_here"
+
+```  
+
+## Binary Search in R (3)
+
+```{r, eval = FALSE}
+    i <- 0
+    repeat {
+      #Current iteration
+      i <- i + 1
+      #Current value of X
+      mid_X <- (min_X + max_X)/2
+      #Current value of Y
+      Y <- Y_calculate(mid_X)
+      #Set the new upper & lower bounds
+      if (Y > Y_target) min_X <- mid_X
+      if (Y < Y_target) max_X <- mid_X
+      #Stop if the target is achieved
+      if (round(Y, 3) == Y_target) break
+      #Stop if max. number of iterations is reached
+      if (i >= max.iterations) break
+    }
+```
+
+

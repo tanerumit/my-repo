@@ -1,0 +1,153 @@
+---
+title: "Climate Viz"
+author: "Umit Taner"
+date: "5/26/2017"
+output: ioslides_presentation
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(DT)
+library(htmlwidgets)
+library(highcharter)
+library(readr)
+```
+
+## CMIP5 projections - mean changes 
+
+```{r gcm data-prep}
+
+#CMIP5_data <- enter raw data here...
+
+CMIP5_mean <- read_csv("./data/mw_CMIP5_data.csv")
+
+#GCM genealogy scheme - Based on Knutti et al. (2013)
+
+### COLOR CODE PREPARE
+CMIP5_gen <- data_frame(
+  model = c("ACCESS1-0", "ACCESS1-3", "HadGEM2-AO", "HadGEM2-CC", 
+    "HadGEM2-ES", "GISS-E2-H","GISS-E2-H-CC","GISS-E2-R","GISS-E2-R-CC", 
+    "CNRM-CM5", "EC-EARTH","MIROC-ESM","MIROC-ESM-CHEM","MIROC5", 
+    "MRI-CGCM3", "inmcm4", "FGOALS-g2","FGOALS-s2", "CanESM2", 
+    "CSIRO-MK3-6-0", "BCC-CSM1-1", "BCC-CSM1-1-m","CCSM4", "CESM1-BGC", 
+    "CESM1-CAM5", "FIO-ESM", "NorESM1-M","NorESM1-ME","MPI-ESM-LR", 
+    "MPI-ESM-MR", "CMCC-CESM","CMCC-CM","CMCC-CMS","GFDL-CM3", 
+    "GFDL-ESM2G", "GFDL-ESM2M","IPSL-CM5A-LR","IPSL-CM5A-MR", 
+    "IPSL-CM5B-LR", "BNU-ESM"),
+  family = c(1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 5, 5, 5, 6, 7, 8, 8, 9, 10, 
+    11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 13, 13, 13, 14, 
+    14, 14, 15))
+
+color_code <- data_frame(family = 1:15, 
+  color = c("#FF3030", "#8B2323", "#76EE00", "#CD1076", "#FF8C00", "#9E9E9E", 
+      "#5CACEE", "#050505", "#FF6EB4", "#008B00", "#3A5FCD", "#FFFF00", 
+      "#00E5EE","#EED2EE","#CDCD00"))
+
+CMIP5_dat <- CMIP5_mean %>% 
+  left_join(CMIP5_gen, by = "model") %>%
+  left_join(color_code, by = "family") 
+  
+```
+
+```{r gcm scatter-plot}
+
+GCM_tabular <- DT::datatable(CMIP5_dat,
+  extensions = 'Buttons', 
+    options = list(
+      dom = 'Bfrtip',
+      buttons = c('copy', 'csv', 'excel', 'pdf', 'print')),
+    class = 'cell-border stripe',
+    filter = 'top',
+    colnames = c('Model', 'Scenario', 'Δ Temp (°C)', 'Δ Precip (%)')) %>%
+  formatRound('temp', 2) %>%
+  formatPercentage('prec', digits = 2) 
+
+#Base plot
+hcp <- highchart() %>%
+  hc_add_series_df(CMIP5_dat, name = "GCM projections", type= "scatter", 
+    radius = 7, x = temp, y = prec, group = scenario, borderwidth = 2) %>%
+#Axis settings
+  hc_xAxis(min =0, max =5, tickInterval=1, gridLineWidth=2, crosshair=T,
+      title = list(text = "Temperature change (°C)")) %>%
+  hc_yAxis(min=-40, max =50, tickInterval=10, gridLineWidth=2, crosshair=T,
+      title = list(text="Precipitation change (%)")) %>%
+#Plot appearance
+  hc_add_theme(hc_theme_smpl()) %>%
+  hc_plotOptions(
+    series = list(marker = list(symbol = "circle"))) %>%
+  hc_legend(align = "right", verticalAlign = "top", 
+    layout = "vertical", x = 0, y = 50) %>%
+  hc_colors(c('rgba(255,0,0,.5)', 'rgba(0,0,255,.5)',
+    'rgba(100,100,0,.5)', 'rgba(100,0,100,.5)')) %>%
+#Additional information & settings
+  hc_chart(width = 700, height = 600) %>%
+  hc_tooltip(formatter = JS("function(){
+    return (' Δ Temp. (°C): ' + this.x +
+            ' <br> Δ Precip. (%): ' + this.y +
+            ' <br> Model: ' + this.point.model +
+            ' <br> Scenario: ' + this.point.scenario)}"),
+      borderWidth = 2) %>%
+   hc_exporting(enabled = T)
+
+hcp
+```
+
+## Climate response surfaces
+
+```{r surfacemap-prep}
+
+data("vaccines")
+library("viridis")
+
+# fntltp <- JS("function(){
+#   return this.point.x + ' ' +  this.series.yAxis.categories[this.point.y] + ':<br>' +
+#   Highcharts.numberFormat(this.point.value, 2);
+# }")
+# 
+# plotline <- list(
+#   color = "#fde725", value = 1963, width = 2, zIndex = 5,
+#   label = list(
+#     text = "Vaccine Intoduced", verticalAlign = "top",
+#     style = list(color = "#606060"), textAlign = "left",
+#     rotation = 0, y = -5)
+# )
+
+stest_data <- read_csv("./data/mw_stresstest_ffd.csv") 
+stest_df <- stest_data %>% filter(dataset == "Princeton", size == 120) %>%
+  filter(nvar == 1, demand == 91) 
+
+heatmap_df <- stest_df %>%
+  select(temp, prec, rel) %>%
+  mutate(rel = round(rel, 2), prec = (1 - prec) * 100) %>%
+  mutate(temp = as.factor(temp), prec = as.factor(prec))
+
+hc1 <- hchart(heatmap_df, "heatmap", hcaes(x = temp, y = prec, value = rel)) #%>% 
+  #hc_colorAxis(stops = color_stops(10, rev(inferno(10))),
+  #             type = "logarithmic") %>% 
+  #hc_yAxis(reversed = TRUE, offset = -20, tickLength = 0,
+  #         gridLineWidth = 0, minorGridLineWidth = 0,
+  #         labels = list(style = list(fontSize = "8px"))) %>% 
+  #hc_tooltip(formatter = fntltp) %>% 
+  #hc_xAxis(plotLines = list(plotline)) %>%
+  #hc_title(text = "Infectious Diseases and Vaccines") %>% 
+  #hc_legend(layout = "vertical", verticalAlign = "top",
+  #          align = "right", valueDecimals = 0) 
+
+hc1 %>%
+  hc_add_series_df(CMIP5_dat, name = "GCM projections", type= "scatter", 
+    radius = 7, x = temp, y = prec, group = scenario, borderwidth = 2) %>%
+  hc_xAxis
+
+
+```
+
+
+
+
+
+
+

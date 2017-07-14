@@ -1,0 +1,54 @@
+---
+title: "Kullback Leibler distance"
+author: "M. Umit Taner"
+date: "10/20/2016"
+output: html_document
+---
+
+## Theory
+
+> The Kullback Leibler distance (KL-distance) is a natural distance function from a "true"" probability distribution, p, to a "target" probability distribution, q. It can be interpreted as the expected extra message-length per datum due to using a code based on the wrong (target) distribution compared to using a code based on the true distribution. <http://www.csse.monash.edu.au/~lloyd/tildeMML/KL/>
+
+	
+For discrete (not necessarily finite) probability distributions, p={p1, ..., pn} and q={q1, ..., qn}, the KL-distance is defined to be
+ 
+KL(p, q) = Σi pi . log2( pi / qi )
+ 
+For continuous probability densities, the sum is replaced by an integral.
+ 
+KL(p, p) = 0
+KL(p, q) ≥ 0
+ 
+Note that the KL-distance is not, in general, symmetric.
+
+## R application
+
+Here is a simple example from the r package "rags2ridges":
+
+```{r include=TRUE, echo = TRUE}
+
+#Load required package
+#install.packages("rags2ridges")
+library("rags2ridges")
+
+## Define population
+set.seed(333)
+p = 25
+n = 1000
+X = matrix(rnorm(n*p), nrow = n, ncol = p)
+colnames(X)[1:25] = letters[1:25]
+Cov0  <- covML(X)
+mean0 <- colMeans(X)
+
+## Obtain sample from population
+samples <- X[sample(nrow(X), 10),]
+Cov1  <- covML(samples)
+mean1 <- colMeans(samples)
+
+## Regularize singular Cov1
+P <- ridgeP(Cov1, 10)
+CovR <- solve(P)
+
+## Obtain KL divergence
+KLdiv(mean1, mean0, CovR, Cov0)
+```

@@ -1,0 +1,46 @@
+---
+title: "Sobol - Variance-based sensitivty analysis"
+output: 
+  html_notebook: 
+    code_folding: none
+    theme: cosmo
+---
+
+Sensitivity analysis can be broadly categorized into local sensitivity analysis and global sensitivity analysis. Local sensitivity analysis, that is, normally known as one-at-a-time (OAT) measure, is carried out by varying single input parameters of interest and keeping other parameters at constant value in order 
+to study model output. 
+
+An alternative to local sensitivity analysis is the global sensitivity analysis, of which there are several varieties ranging from a qualitative screening method to quantitative technique (Sobol’ 1990; Morris 1991; Campolongo et al. 2007).
+The global sensitivity analysis provides a better coverage of input spaces, more informative indicators than the local sensitivity tool, and was able to provide statistical description on the model outputs.
+
+## Sobol sensitivity analysis in R
+[Water programming group](https://waterprogramming.wordpress.com/2012/09/19/starting-out-with-the-r-sensitivity-package/)
+
+&nbsp;
+
+We first start by loading sobol package
+```{r}
+library("sensitivity")
+```
+&nbsp;
+
+Next, create two random samples (n rows x 8 columns each)
+```{r}
+n<-1000
+X1<-data.frame(matrix(runif(8*n), nrow=n))
+X2<-data.frame(matrix(runif(8*n), nrow=n))
+```
+&nbsp;
+
+Apply sobol function:
+We only want to perform sampling, so the model is NULL.
+```{r}
+sa<-sobol2002(model=NULL, X1, X2, nboot=10)
+```
+&nbsp;
+
+Write results to a file
+```{r}
+write(t(sa$X), file="test.samples", 8)
+```
+
+
