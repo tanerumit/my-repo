@@ -25,7 +25,7 @@ Note that the KL-distance is not, in general, symmetric.
 
 Here is a simple example from the r package "rags2ridges":
 
-```{r include=TRUE, echo = TRUE}
+```r
 
 #Load required package
 #install.packages("rags2ridges")
