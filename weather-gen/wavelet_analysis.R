@@ -85,7 +85,8 @@
    POWER <- abs(wave)^2
    GWS <- variance1*apply(POWER,FUN=mean,c(1)) #Global Wavelet Spectrum
 
-   background_noise <- "white"   #can be red or white
+   background_noise <- "red"   #can be red or white  ### changed from white!
+   
 
    # get the appropriate parameters [see Table(2)]
    k0 <- 6
