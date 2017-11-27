@@ -1,8 +1,4 @@
 
-
-# One figure per powerpoint slide:
-#png(file="****.png",width=600,height=400, res=80) ///ONE FIGURE PER SLIDE
-
 #mydata_wide <- data_frame(
 #    Date = as.Date("2015-01-01") + c(0:119) * months(1),
 #    First = rnorm(120, mean = 50, sd = 10),
@@ -269,6 +265,7 @@
 
 }
 
+  #Wavelet analysis plot
   viz_wavelet <- function(period, signif, obs, sim, Ribbon=TRUE) {
 
     require(reshape2)
