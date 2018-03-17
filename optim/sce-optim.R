@@ -26,11 +26,13 @@ SCEoptim <- function(FUN, par, ...,
                 lower = -Inf, upper = Inf,
                 control = list())
 {
-    FUN <- match.fun(FUN)
+    
+  FUN <- match.fun(FUN)
     stopifnot(is.numeric(par))
     stopifnot(length(par) > 0)
     stopifnot(is.numeric(lower))
     stopifnot(is.numeric(upper))
+    
     ## allow `lower` or `upper` to apply to all parameters
     if (length(lower) == 1)
         lower <- rep(lower, length = length(par))

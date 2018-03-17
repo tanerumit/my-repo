@@ -1,13 +1,18 @@
 
+#' @title Wavelet Analysis Script (From Steinscheneider, 2013)
+#' @description Place holder
+#' @param period Climate variable to be analyzed
+#' @param sig sigicance level
+#' @param background_noise type of background noise Default:red
+#' @return a list containing vectors period, signif_GWS, and GWS
+#' @details place holder
+#' @export 
 
-###################################################################################################
+waveletAnalysis <- function(variable, siglvl=0.85, background_noise = "red") {
 
-   #WAVELET_ANALYZE <- function(CLIMATE_VARIABLE, siglvl=0.85) {
-
-   siglvl <- 0.85
    require(forecast, quietly = FALSE)
 
-   ###################################################################################################
+   #############################################################################
    #Define Wavelet function used that returns transform
    waveletf <- function(k,s) {
       nn <- length(k)
@@ -42,20 +47,20 @@
    ###################################################################################################
 
    #construct time series to analyze, pad if necessary
-   CURRENT_CLIMATE_VARIABLE_org <- CLIMATE_VARIABLE
-   variance1 <- var(CURRENT_CLIMATE_VARIABLE_org)
-   n1 <- length(CURRENT_CLIMATE_VARIABLE_org)
-   CURRENT_CLIMATE_VARIABLE <- scale(CURRENT_CLIMATE_VARIABLE_org)
-   variance2 <- var(CURRENT_CLIMATE_VARIABLE)
+   current_variable_org <- variable
+   variance1 <- var(current_variable_org)
+   n1 <- length(current_variable_org)
+   current_variable <- scale(current_variable_org)
+   variance2 <- var(current_variable)
    base2 <- floor(log(n1)/log(2) + 0.4999)   # power of 2 nearest to N
-   CURRENT_CLIMATE_VARIABLE <- c(CURRENT_CLIMATE_VARIABLE,rep(0,(2^(base2+1)-n1)))
-   n <- length(CURRENT_CLIMATE_VARIABLE)
+   current_variable <- c(current_variable,rep(0,(2^(base2+1)-n1)))
+   n <- length(current_variable)
 
    #Determine parameters for Wavelet analysis
    dt <- 1
    dj <- 0.25
    s0 <- 2*dt
-   J <- floor((1/dj)*log((n1*dt/s0),base=2))
+   J  <- floor((1/dj)*log((n1*dt/s0),base=2))
 
    #....construct SCALE array & empty PERIOD & WAVE arrays
    scale <- s0*2^((0:J)*dj)
@@ -67,7 +72,7 @@
    k <- k*((2.*pi)/(n*dt))
    k <- c(0,k,-rev(k[1:floor((n-1)/2)]))
 
-   f <- fft(CURRENT_CLIMATE_VARIABLE,inverse=FALSE)        #fourier transform of standardized precipitation
+   f <- fft(current_variable,inverse=FALSE)        #fourier transform of standardized precipitation
 
    # loop through all scales and compute transform
    for (a1 in 1:(J+1)) {
@@ -85,7 +90,7 @@
    POWER <- abs(wave)^2
    GWS <- variance1*apply(POWER,FUN=mean,c(1)) #Global Wavelet Spectrum
 
-   background_noise <- "red"   #can be red or white  ### changed from white!
+   #background_noise <- "red"   #can be red or white  ### changed from white!
    
    # get the appropriate parameters [see Table(2)]
    k0 <- 6
@@ -105,6 +110,7 @@
    #ENTIRE POWER SPECTRUM
    chisquare <- qchisq(siglvl,dof)/dof
    signif <- fft_theor*chisquare   # [Eqn(18)]
+   
    sig95 <- ((signif))%o%(array(1,n1))  # expand signif --> (J+1)x(N) array
    sig95 <- POWER / sig95         # where ratio > 1, power is significant
 
@@ -122,11 +128,8 @@
       signif_GWS[a1] <- fft_theor[a1]*variance1*chisquare_GWS[a1]
    }
 
-   #Output
-   wavelet_out <- data.frame(period, signif_GWS, GWS)
-   #return(Wavelet.out)
-   #
-#}
+  return(list(period = period, signif_GWS = signif_GWS, GWS = GWS, 
+     scale = scale, dt = dt, dj = dj, wave = wave))
+  
+}
 
-
-###################################################################################################

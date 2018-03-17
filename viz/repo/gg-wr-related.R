@@ -176,6 +176,10 @@
     return(p)
   }
 
+  
+  
+  
+  
   #Box-plot
   viz_boxplot <- function(data, x, y, type, font.size = 10, name = NULL,
      color_set = NULL, save = F, ...) {
@@ -210,60 +214,6 @@
     return(p)
   }
 
-  #ACF & PACF functions
-  viz_ACF <- function(v,lag=10, name.arg=NULL) {
-
-   p <- list()
-
-   require(ggplot2)
-   require(grid)
-   require(gridExtra)
-
-   #ACF & PACF results
-   v.acf  <- acf(v, plot=FALSE,lag.max=lag)
-   v.pacf <- pacf(v, plot=FALSE,lag.max=lag)
-
-   #Confidence intervals
-   ci <- 0.95 # Indicates 95% confidence level
-   clim0 <- qnorm((1 + ci)/2)/sqrt(v.acf$n.used)
-   clim <- c(-clim0,clim0)
-   hline.data <- data.frame(z=c(0,clim), type=c("base","ci","ci"))
-
-   #Plot time-series
-   p[['Time-Series']] <- ggplot(data.frame(ID=1:length(v),VAR=v), aes(x=ID,y=VAR)) +
-      geom_line() + labs(x="years",y="precipitation (mm)")
-
-   #Plot acf
-   p[['ACF']] <- ggplot(data.frame(lag=v.acf$lag,acf=v.acf$acf)) +
-      theme_bw(base_size=8) +
-      ggtitle(name.arg) +
-      geom_hline(aes(yintercept=z,colour=type,linetype=type),hline.data) +
-      geom_linerange(aes(x=as.factor(lag),ymin=0,ymax=acf, size=0.8)) +
-      scale_colour_manual(values = c("black","red")) +
-      scale_linetype_manual(values =c("solid","dashed")) +
-      scale_y_continuous(limits=c(-0.5,1), breaks=seq(-0.50,1,0.5)) +
-      #labs(x='lag (years)', y='')
-      labs(x=NULL, y=NULL) +
-      guides(color=FALSE, shape=FALSE, size=FALSE) +
-      theme(plot.margin = unit(c(0,0.2, 0.2, 0.2),"cm"))
-
-   #Plot pacf
-   p[['PACF']] <- ggplot(data.frame(lag=v.pacf$lag,pacf=v.pacf$acf)) +
-      theme_bw(base_size=8) +
-      ggtitle(name.arg) +
-      geom_hline(aes(yintercept=z,colour=type,linetype=type),hline.data) +
-      geom_linerange(aes(x=as.factor(lag),ymin=0,ymax=pacf, size=0.8)) +
-      scale_colour_manual(values = c("black","red")) +
-      scale_linetype_manual(values =c("solid","dashed")) +
-      scale_y_continuous(limits=c(-0.5,1), breaks=seq(-0.50,1,0.5)) +
-      #labs(x='lag (years)', y='')
-      labs(x=NULL, y=NULL) +
-      guides(color=FALSE, shape=FALSE, size=FALSE) +
-      theme(plot.margin = unit(c(-0.15,-0.15,-0.15, -0.15),"cm"))
-
-   return(p)
-
-}
 
   #Wavelet analysis plot
   viz_wavelet <- function(period, signif, obs, sim, Ribbon=TRUE) {

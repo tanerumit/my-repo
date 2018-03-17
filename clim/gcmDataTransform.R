@@ -2,12 +2,18 @@
 ## This script is tied to the outputs of the CMIP5 TOOL (Wi, 2017)
 
 gcmDataTransform <- function(
-  path = NULL, gridInfo = "cmip5grid.xlsx", 
+  path = NULL, 
+  gridInfo = "cmip5grid.xlsx", 
+  climateVars = c("prcp", "tavg", "tmax", "tmin"),
   scenarios = c("historical", "rcp26", "rcp45", "rcp60", "rcp85")) {
+  
+  #browser()
   
   require(readxl)
   require(dplyr)
   
+  file_header <- c("coord", "year", "mon", climateVars)
+
   #List to store the results
   out <- list()
   
@@ -37,18 +43,48 @@ gcmDataTransform <- function(
       
       data <- lapply(files, function(x) read.table(x)) %>% 
         setNames(file_names) %>% bind_rows(.id = "coord") %>% 
-        setNames(c("coord", "year", "mon", "prcp", "tavg", "tmax", "tmin")) %>%
-        #select(c("coord", "year", "mon", vars)) %>% 
-        as_tibble() %>%
-        left_join(grid_cur, by = "coord") %>% group_by(year, mon) %>%
-        summarize(prcp = sum(prcp * area), tavg = sum(tavg * area), 
-                  tmax = sum(tmax * area), tmin = sum(tmin * area))  %>%
-        ungroup()
+        setNames(file_header) %>% as_tibble() %>%
+        left_join(grid_cur, by = "coord")
       
-      out[[scenarios[[k]]]][[gcm_names[[i]]]] <- data
+      if(identical(climateVars, c("prcp", "tavg", "tmax", "tmin"))) {
+        
+        data2 <- data %>% 
+          group_by(year, mon) %>%
+          summarize(prcp = sum(prcp * area), tavg = sum(tavg * area), 
+                    tmax = sum(tmax * area), tmin = sum(tmin * area)) %>%
+          ungroup()
+
+      } else {
+        
+        data2 <- data %>% 
+          group_by(year, mon) %>%
+          summarize(prcp = sum(prcp * area), tavg = sum(tavg * area)) %>%
+          ungroup()
+      }
+
+      out[[scenarios[[k]]]][[gcm_names[[i]]]] <- data2
     }
   }
   return(out)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #gcm_data <- gcmDataTransform(path = "./data/climate projections/")

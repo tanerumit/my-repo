@@ -1,0 +1,72 @@
+---
+  title: "Trend Analysis"
+author: "M. Umit Taner"
+date: "1/26/2018"
+output: 
+  html_document: 
+    code_folding: none
+    theme: cosmo
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(DT)
+library(htmlwidgets)
+library(highcharter)
+library(readr)
+```
+
+
+### Trend analysis
+
+Null hypothesis
+Ho:  Distribution (F) of R.V. Xt is same for all t
+H1:  F changes systematically with time
+
+Parametric:  
+- Assume the distribution of Xt (often Gaussian)
+- linear regression	(with time)
+
+Nonparametric:  Form of distribution not assumed (but often are some assumptions, e.g. common distribution aside from change in central tendency)
+
+- Nonparametric tests are usually more robust to violation of assumptions that must be made for parametric tests, however when parametric tests are appropriate, the range of quantitative inferences that can be made is usually greater
+
+- Kendall’s tau; spearman’s rho (essentially rank	correlation with time)
+
+Monotonic Trend:  Continuing (and not reversing) 
+
+
+1. Mann-Kendall Testv (non-parametric)
+
+> The Mann-Kendall test can be stated most generally as a test for whether Y values
+tend to increase or decrease with T (monotonic change).
+
+>No assumption of normality is required, but there must be no serial correlation for the resulting
+p-values to be correct. 
+
+> To perform the test, Kendall's S statistic is computed from the Y,T data pairs (see Chapter 8).
+The null hypothesis of no change is rejected when S (and therefore Kendall's τ of Y versus T) is
+significantly different from zero. We then conclude that there is a monotonic trend in Y over
+time.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+2. Parametric Regression of Y on T
+
