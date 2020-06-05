@@ -1,0 +1,58 @@
+---
+title: "Nenskra - Interactive"
+author: "Cloudwater LLC"
+date: "May 1, 2018"
+output: slidy_presentation
+runtime: shiny
+---
+
+
+```{r setup, echo = FALSE}
+#General chunk settings
+knitr::opts_chunk$set(echo = FALSE)
+
+#create a hook that allows us to feed our class to a class argument in the chunk
+knitr::knit_hooks$set(class = function(before, options, envir) {
+  if(before){
+    sprintf("<div class = '%s'>", options$class)
+  }else{
+    "</div>"
+  }
+})
+```
+
+## R Markdown
+
+- Bullet 1
+- Bullet 2
+- Bullet 3
+
+## Slide with R Output
+
+```{r cars, echo = TRUE, class = "blue-outline"}
+summary(cars)
+```
+
+## Shiny slide
+
+```{r, echo = FALSE}
+
+library(shiny)
+shinyApp(
+  
+  ui = fluidPage(
+    selectInput("region", "Region:", 
+                choices = colnames(WorldPhones)),
+    plotOutput("phonePlot")
+  ),
+  
+  server = function(input, output) {
+    output$phonePlot <- renderPlot({
+      barplot(WorldPhones[,input$region]*1000, 
+              ylab = "Number of Telephones", xlab = "Year")
+    })
+  },
+  
+  options = list(height = 500)
+)
+```
